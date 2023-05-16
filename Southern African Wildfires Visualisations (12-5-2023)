@@ -1,0 +1,54 @@
+#We want to achieve the followimg in our data set
+# a) Know the areas with the highest magnitude of earthquake in that day
+# b)Map their Lon and lat
+# c)Print the list of places with the lowest and highest
+from plotly.graph_objs import Scattergeo,Layout
+import matplotlib.pyplot as plt
+import csv
+from datetime import datetime
+from plotly import offline
+from plotly import colors
+# We first of all have to read the file
+
+filename='D:\Data Science e-books\MODIS_C6_1_Southern_Africa_Fires-12-5-2023.csv'
+with open(filename,encoding='utf-8') as f:
+    reader = csv.reader(f)
+    header_row =next(reader)
+#     print(header_row)
+    
+    #Print the index so that we
+    for index,column_header in enumerate(header_row):
+       print(f"{index},{column_header}")
+        
+    #Take the values that you want to visualize in the data set
+    lats,lons,mags,hover_texts = [],[],[],[]
+    for row in reader:
+        lat =float(row[0])
+        lon =float(row[1])
+        brig=float(row[2])
+        daynight=str(row[12])
+        lats.append(lat)
+        lons.append(lon)
+        mags.append(brig)
+        hover_texts.append(daynight)
+        
+#Map  the latitude,longitude and brightnesss of the fires on a world map
+data = [Scattergeo(lon=lons,lat=lats)]
+data = [{
+    'type': 'scattergeo',
+    'lon': lons,
+    'lat': lats,
+    'text': hover_texts,
+    'marker': {
+        'size': [0.05*mag for mag in mags],
+        'color':mags,
+        'colorscale': 'Reds',
+        'reversescale': True,
+        'colorbar': {'title': 'Brightness'},
+    },
+}]
+Title_of_our_Graph = "Mapping Southern Africa Fires"
+my_layout = Layout(title=Title_of_our_Graph)
+
+fig={'data':data,'layout':my_layout}
+offline.plot(fig,filename="Mapping Southern Africe Fires.html")
